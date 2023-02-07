@@ -216,10 +216,11 @@ df_plot_stats <- df_stats %>%
 
 p_stats <- df_plot_stats %>%
   ggplot(aes(x=`Método`, y=Valor, fill=`Método`)) +
-  geom_bar(stat = "identity", width=0.4, alpha=0.9, color="black") +
+  geom_bar(stat = "identity", width=0.4, alpha=0.9) +
+  geom_text(aes(label=round(Valor, 3)), size=3, hjust = 1.2, angle = 90, fontface="bold") +
   theme_minimal() + ylab("") +
-  facet_wrap(~Medida, nrow = 3, scales = "free_y") +
+  facet_wrap(~Medida, nrow = 3, scales = "free") +
   #ggtitle("Distribución de los pesos") +
-  theme(legend.position = "none")
+  theme(legend.position = "none", axis.text.y= element_blank())
 
 ggsave(filename = "p_medidas.pdf", plot = p_stats, width = 3, height = 5)

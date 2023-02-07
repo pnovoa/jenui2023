@@ -100,10 +100,10 @@ eucl_dist <- sapply(w_list, function(ws) sqrt(sum((ws - df_preferences$Pesos)^2)
 
 
 df_stats <- tibble(
-  Method = names(eucl_dist),
-  Correlation = corr_results,
-  AvgOrdDiff = avg_ord_diff,
-  EuclDistWeights = eucl_dist
+  `Método` = names(eucl_dist),
+  `Correlación` = corr_results,
+  `Diferencia promedio del orden`  = avg_ord_diff,
+  `Distancia entre pesos` = eucl_dist
 )
 
 
@@ -168,27 +168,58 @@ print(p_rank_comp)
 
 ggsave("p_rank_comp.pdf", plot = p_rank_comp, width = 8, height = 11)
 
-
-df_weights <- df_preferences %>%
+df_weights_ <- df_preferences %>%
   mutate(
     `Método ROC` = roc_ws,
     `Método RS` = rs_ws,
     `Método RR` = rr_ws
   ) %>%
-  select(`Evaluación parcial`, Pesos, `Método ROC`, `Método RS`, `Método RR`) %>%
+  select(`Evaluación parcial`, Pesos, `Método ROC`, `Método RS`, `Método RR`)
+
+
+library(xtable)
+
+xtable(df_weights_ %>% select(-Pesos), type = "latex", )
+
+
+df_weights <- df_weights_ %>%
   rename(
-    "Enf. tradicional" = Pesos
+    "Enfoque tradicional" = Pesos
   ) %>%
   pivot_longer(cols = -c(`Evaluación parcial`), names_to = "Método", values_to = "Peso") %>%
-  mutate(`Método` = factor(`Método`, levels=c("Enf. tradicional", "Método ROC", "Método RS", "Método RR")))
+  mutate(`Método` = factor(`Método`, levels=c("Enfoque tradicional", "Método ROC", "Método RS", "Método RR")))
 
 p_weight_comp <- df_weights %>%
   ggplot(aes(x=`Evaluación parcial`, y=Peso, group=`Método`, color=`Método`))+
-  geom_line() +
+  geom_line(aes(linetype=`Método`)) +
   geom_point(size=2) +
   theme_minimal() +
-  ggtitle("Distribución de los pesos") +
-  theme(legend.position = c(0., 0.25))
+  #ggtitle("Distribución de los pesos") +
+  theme(legend.position = c(0.25, 0.7), legend.title = element_blank())
 
 
-ggsave("p_weights.pdf", plot = p_weight_comp, width = 4, height = 3)
+ggsave("p_weights.pdf", plot = p_weight_comp, width = 3.5, height = 2.5)
+
+
+
+df_plot_stats <- df_stats %>%
+  pivot_longer(cols = -c(`Método`), names_to = "Medida", values_to = "Valor") %>%
+  mutate(`Método` = factor(`Método`, levels=c("ROC", "RS", "RR"))) %>%
+  mutate(
+    Medida = ifelse(Medida == "Correlación", "a) Correlación",
+                    ifelse(Medida == "Distancia entre pesos", "c) Distancia entre pesos",
+                           "b) Diferencia promedio del orden"
+                    )
+                    )
+  )
+
+
+p_stats <- df_plot_stats %>%
+  ggplot(aes(x=`Método`, y=Valor, fill=`Método`)) +
+  geom_bar(stat = "identity", width=0.4, alpha=0.9, color="black") +
+  theme_minimal() + ylab("") +
+  facet_wrap(~Medida, nrow = 3, scales = "free_y") +
+  #ggtitle("Distribución de los pesos") +
+  theme(legend.position = "none")
+
+ggsave(filename = "p_medidas.pdf", plot = p_stats, width = 3, height = 5)

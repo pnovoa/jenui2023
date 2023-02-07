@@ -216,7 +216,7 @@ df_plot_stats <- df_stats %>%
 
 p_stats <- df_plot_stats %>%
   ggplot(aes(x=`Método`, y=Valor, fill=`Método`)) +
-  geom_bar(stat = "identity", width=0.4, alpha=0.9) +
+  geom_bar(stat = "identity", width=0.3, alpha=0.9) +
   geom_text(aes(label=round(Valor, 3)), size=3, hjust = 1.2, angle = 90, fontface="bold") +
   theme_minimal() + ylab("") +
   facet_wrap(~Medida, nrow = 3, scales = "free") +

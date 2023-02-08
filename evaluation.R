@@ -66,7 +66,6 @@ eval_mat <- df_evaluations %>%
 
 rownames(eval_mat) <- df_evaluations$Estudiante
 
-
 over_var_w <- 1 - df_preferences  %>%
   filter(Tipo == "Fijo") %>%
   group_by(Tipo) %>%
@@ -82,7 +81,6 @@ fixed_importance <- df_preferences  %>%
   mutate(Importancia = rank(Importancia))
 
 ncrit_fixed <- nrow(fixed_importance)
-
 
 eqw_ws_fixed <- ew_weights(ncrit_fixed) * over_var_w
 roc_ws_fixed <- roc_weights(ncrit_fixed)[fixed_importance$Importancia] * over_var_w
@@ -145,6 +143,11 @@ df_evaluations <- df_evaluations %>%
     df_global_grades,
     by=c("Estudiante")
   )
+
+write.csv(x=df_evaluations, file = "final_grades.csv")
+
+
+# Comparison
 
 method_levels <- c("Tradicional",
                    "EW\n(F)",
